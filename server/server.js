@@ -7,8 +7,8 @@ require('dotenv').config();
 
 app.use(express.json({ extended: false }));
 
-const db = process.env.localdb;
-mongoose.connect(db, { useNewUrlParser: true });
+const { localdb,clouddb } = process.env;
+mongoose.connect(localdb, { useNewUrlParser: true });
 
 app.use(require('./routes/auth'));
 app.use(require('./routes/post'));

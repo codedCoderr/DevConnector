@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware');
 
-const jwtsecret = process.env.jwtsecret;
+const { jwtsecret } = process.env;
 
 router.post(
   '/register',
