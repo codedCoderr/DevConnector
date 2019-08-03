@@ -15,7 +15,7 @@ router.get('/posts', auth, async (req, res) => {
     }
     res.json(posts);
   } catch (error) {
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error finding posts' });
   }
 });
 router.post(
@@ -50,8 +50,7 @@ router.post(
       post.save();
       res.json(post);
     } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ msg: 'Server error' });
+      res.status(500).json({ msg: 'Error creating post' });
     }
   }
 );
@@ -67,13 +66,14 @@ router.get('/posts/:post_id', auth, async (req, res) => {
     if (error.kind == 'ObjectId') {
       return res.status(400).json({ msg: 'No post found' });
     }
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error finding post' });
   }
 });
 router.put('/posts/:post_id', auth, async (req, res) => {
   const { id } = req.user;
   const { text } = req.body;
   const { post_id } = req.params;
+
   try {
     let post = await Post.findOne({
       _id: post_id,
@@ -89,7 +89,7 @@ router.put('/posts/:post_id', auth, async (req, res) => {
     if (error.kind == 'ObjectId') {
       return res.status(400).json({ msg: 'No post found' });
     }
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error modifying post' });
   }
 });
 router.delete('/posts/:post_id', auth, async (req, res) => {
@@ -101,14 +101,14 @@ router.delete('/posts/:post_id', auth, async (req, res) => {
       user: id
     });
     if (!post) {
-      return res.status(400).json({ msg: 'No post found' });
+      return res.status(400).json({ msg: 'Unauthorized user' });
     }
     res.json({ msg: 'Post removed' });
   } catch (error) {
     if (error.kind == 'ObjectId') {
       return res.status(400).json({ msg: 'No post found' });
     }
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error deleting post' });
   }
 });
 router.post('/posts/:post_id/like', auth, async (req, res) => {
@@ -119,7 +119,7 @@ router.post('/posts/:post_id/like', auth, async (req, res) => {
       _id: post_id
     });
     if (post.likes.filter(like => like.user.toString() === id).length > 0) {
-      return res.status(400).json({ msg: 'Post already liked' });
+      return res.status(400).json({ msg: "You've already liked this post" });
     }
 
     post.likes.unshift({ user: id });
@@ -130,7 +130,7 @@ router.post('/posts/:post_id/like', auth, async (req, res) => {
     if (error.kind == 'ObjectId') {
       return res.status(400).json({ msg: 'No post found' });
     }
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error liking post' });
   }
 });
 router.post('/posts/:post_id/unlike', auth, async (req, res) => {
@@ -141,7 +141,7 @@ router.post('/posts/:post_id/unlike', auth, async (req, res) => {
       _id: post_id
     });
     if (post.likes.filter(like => like.user.toString() === id).length <= 0) {
-      return res.status(400).json({ msg: "Post hasn't yet been liked" });
+      return res.status(400).json({ msg: "You haven't liked this post" });
     }
 
     const removeIndex = post.likes
@@ -156,7 +156,7 @@ router.post('/posts/:post_id/unlike', auth, async (req, res) => {
     if (error.kind == 'ObjectId') {
       return res.status(400).json({ msg: 'No post found' });
     }
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error unliking post' });
   }
 });
 router.post('/posts/:post_id/comment', auth, async (req, res) => {
@@ -188,11 +188,10 @@ router.post('/posts/:post_id/comment', auth, async (req, res) => {
     await post.save();
     res.json(post.comments);
   } catch (error) {
-    console.log(error.message);
     if (error.kind == 'ObjectId') {
       return res.status(400).json({ msg: 'No post found' });
     }
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error commenting on post' });
   }
 });
 router.delete('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
@@ -223,9 +222,9 @@ router.delete('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
     res.json(post.comments);
   } catch (error) {
     if (error.kind == 'ObjectId') {
-      return res.status(400).json({ msg: 'Error removing comment' });
+      return res.status(400).json({ msg: 'No comment found' });
     }
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error removing comment' });
   }
 });
 router.put('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
@@ -243,19 +242,18 @@ router.put('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
     if (!comment) {
       return res.status(404).json({ msg: 'No comment found' });
     }
-    _.update(comment, (comment.text = text));
 
     if (comment.user.toString() !== id) {
       return res.status(401).json({ msg: 'User not authorized' });
     }
+    _.update(comment, (comment.text = text));
     await post.save();
     res.json(comment);
   } catch (error) {
     if (error.kind == 'ObjectId') {
-      return res.status(400).json({ msg: 'Error modifying comment' });
+      return res.status(400).json({ msg: 'No comment found' });
     }
-    console.log(error.message);
-    res.status(500).json({ msg: 'Server error' });
+    res.status(500).json({ msg: 'Error modifying comment' });
   }
 });
 module.exports = router;
