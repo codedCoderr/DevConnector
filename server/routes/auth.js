@@ -18,6 +18,10 @@ router.post(
     check(
       'password',
       'Please enter a password with 3 or more characters'
+    ).isLength({ min: 3 }),
+    check(
+      'password2',
+      'Confirm your password'
     ).isLength({ min: 3 })
   ],
   async (req, res) => {
@@ -30,10 +34,14 @@ router.post(
 
       let user = await User.findOne({ email });
       if (user) {
-        return res.status(400).json({ msg: 'User already exists' });
+        return res
+          .status(400)
+          .json({ errors: [{ msg: 'Error registering,enter a different email' }] });
       }
       if (password !== password2) {
-        return res.status(400).json({ msg: 'Passwords do not match' });
+        return res
+          .status(400)
+          .json({ errors: [{ msg: 'Passwords do not match' }] });
       }
       user = new User({
         name,
@@ -45,7 +53,8 @@ router.post(
       await user.save();
       const payload = {
         user: {
-          id: user.id
+          id: user.id,
+          name: user.name
         }
       };
       const token = await jwt.sign(payload, jwtsecret, {
@@ -53,7 +62,7 @@ router.post(
       });
       res.json(token);
     } catch (error) {
-      res.status(500).send({ msg: 'Server error' });
+      res.status(500).send({ errors: [{ msg: 'Server error' }] });
     }
   }
 );
@@ -74,21 +83,26 @@ router.post(
 
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({ msg: 'Invalid credentials' });
+        return res
+          .status(400)
+          .json({ errors: [{ msg: 'Invalid credentials' }] });
       }
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(400).json({ msg: 'Invalid credentials' });
+        return res
+          .status(400)
+          .json({ errors: [{ msg: 'Invalid credentials' }] });
       }
       const payload = {
         user: {
-          id: user.id
+          id: user.id,
+          name: user.name
         }
       };
       const token = await jwt.sign(payload, jwtsecret, { expiresIn: 360000 });
       res.json(token);
     } catch (error) {
-      res.status(500).json({ msg: 'Server error' });
+      res.status(500).json({ errors: [{ msg: 'Error logging in' }] });
     }
   }
 );
@@ -97,11 +111,11 @@ router.get('/user', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
-      return res.status(400).json({ msg: 'No signed in user' });
+      return res.status(400).json({ errors: [{ msg: 'No signed in user' }] });
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json('Server error');
+    res.status(500).json({ errors: [{ msg: 'Error getting user' }] });
   }
 });
 module.exports = router;
