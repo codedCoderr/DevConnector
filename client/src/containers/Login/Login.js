@@ -1,16 +1,16 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {connect} from 'react-redux';
-import {login} from '../../actions/auth'
-const Login = ({login,history}) => {
-  const [formData,setFormData]=useState({
-    email:'',
-    password:''
-  })
-  const{email,password}=formData;
-  const onChange=(e)=>{
-    setFormData({...formData,[e.target.name]:e.target.value})
-  }
+import { connect } from 'react-redux';
+import { login } from '../../actions/auth';
+const Login = ({ login, history }) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const { email, password } = formData;
+  const onChange = e => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
   return (
     <div>
       <section className='container'>
@@ -19,6 +19,7 @@ const Login = ({login,history}) => {
           <i className='fas fa-user' /> Sign into Your Account
         </p>
         <form
+          className='form'
           onSubmit={e => {
             e.preventDefault();
             login(email, password, history);
@@ -54,6 +55,9 @@ const Login = ({login,history}) => {
       </section>
     </div>
   );
-}
+};
 
-export default connect(null,{login}) (Login)
+export default connect(
+  null,
+  { login }
+)(Login);
