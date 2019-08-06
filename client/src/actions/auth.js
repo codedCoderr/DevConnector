@@ -4,6 +4,7 @@ import {
   LOGIN_FAIL,
   LOGIN_SUCCESS
 } from './types';
+import {setAlert} from './alert'
 import axios from 'axios';
 
 export const register = (
@@ -28,11 +29,14 @@ export const register = (
       type: REGISTER_SUCCESS,
       payload: response.data
     });
-    history.push('/profiles');
+    // dispatch(setAlert('Registration was successful','success'))
+    // history.push('/profiles');
   } catch (error) {
     const errors = error.response.data.errors;
     if (errors) {
-      errors.map(error => console.log(error.msg));
+      errors.map(error =>
+        dispatch(setAlert(error.msg,'danger'))
+      );
     }
     dispatch({
       type: REGISTER_FAIL,
@@ -49,20 +53,20 @@ const config = {
   headers: { 'Content-Type': 'application/json' }
 };
 try {
-  const response=axios.post('/login',body,config)
+  const response=await axios.post('/login',body,config)
   dispatch({
     type: LOGIN_SUCCESS,
     payload: response.data
   });
-  history.push('/profiles');
+  dispatch(setAlert('Login was successful', 'success'));
+  history.push('/dashboard');
 } catch (error) {
   const errors = error.response.data.errors;
   if (errors) {
-    errors.map(error => console.log(error.msg));
+    errors.map(error => dispatch(setAlert(error.msg, 'danger')))
   }
   dispatch({
-    type: LOGIN_FAIL,
-    payload: error
+    type: LOGIN_FAIL
   });
 }
 }

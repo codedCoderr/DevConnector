@@ -62,7 +62,7 @@ router.post(
       });
       res.json(token);
     } catch (error) {
-      res.status(500).send({ errors: [{ msg: 'Server error' }] });
+      res.status(500).send({ errors: [{ msg: 'Error registering user' }] });
     }
   }
 );
@@ -71,7 +71,7 @@ router.post(
   '/login',
   [
     check('email', 'Please enter a valid email').isEmail(),
-    check('password', 'assword is required').exists()
+    check('password', 'Password is required').exists()
   ],
   async (req, res) => {
     try {

@@ -6,9 +6,10 @@ import {
 } from '../actions/types';
 
 const initialState = {
-  isAuthenticated: null,
   token: localStorage.getItem('token'),
-  error: null
+  isAuthenticated: null,
+  loading:true,
+  user:null
 };
 export default function(state = initialState, action) {
   const { type, payload } = action;
@@ -18,8 +19,9 @@ export default function(state = initialState, action) {
       localStorage.setItem('token', payload);
       return {
         ...state,
+        ...payload,
         isAuthenticated: true,
-        token:payload
+        loading:false
       };
     case REGISTER_FAIL:
     case LOGIN_FAIL:
@@ -28,7 +30,7 @@ export default function(state = initialState, action) {
         ...state,
         isAuthenticated: false,
         token: null,
-        error: payload
+        loading: false
       };
     default:
       return state;
