@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-const Navbar = ({ isAuthenticated }) => {
+import {logout} from '../../actions/auth'
+const Navbar = ({ logout,isAuthenticated }) => {
   return (
     <nav className='navbar bg-dark'>
       <h1>
@@ -18,8 +19,8 @@ const Navbar = ({ isAuthenticated }) => {
             <li>
               <Link to='/dashboard'>Dashboard</Link>
             </li>
-            <li>
-              <Link to='/logout'>Logout</Link>
+            <li onClick={()=>logout()}>
+              <Link to='/login'>Logout</Link>
             </li>
           </Fragment>
         ) : (
@@ -40,4 +41,4 @@ const Navbar = ({ isAuthenticated }) => {
 const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated
 });
-export default connect(mapStateToProps)(Navbar);
+export default connect(mapStateToProps,{logout})(Navbar);
