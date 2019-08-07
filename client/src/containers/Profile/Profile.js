@@ -51,6 +51,14 @@ const Profile = ({ fetchProfile, profile, loading, match, auth }) => {
                       <i className='fab fa-twitter fa-2x' />
                     </a>
                   )}
+                  {profile.social && profile.social.github && (
+                    <a
+                      href={profile.social.github}
+                      target='_blank'
+                      rel='noopener noreferrer'>
+                      <i className='fab fa-github fa-2x' />
+                    </a>
+                  )}
                   {profile.social && profile.social.facebook && (
                     <a
                       href={profile.social.facebook}
@@ -111,7 +119,7 @@ const Profile = ({ fetchProfile, profile, loading, match, auth }) => {
               {profile.experience.length > 0 ? (
                 <Fragment>
                   {profile.experience.map(experience => (
-                    <div>
+                    <div key={experience._id}>
                       <h3 className='text-dark'>{experience.company}</h3>
                       <p>
                         <Moment format='DD/MM/YYYY'>{experience.from}</Moment> -{' '}
