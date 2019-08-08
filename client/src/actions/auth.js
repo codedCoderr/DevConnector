@@ -51,7 +51,7 @@ export const register = (
       payload: response.data
     });
     dispatch(setAlert('Registration was successful', 'success'));
-    history.push('/profiles');
+    history.push('/dashboard');
     dispatch(loadUser());
   } catch (error) {
     const errors = error.response.data.errors;
