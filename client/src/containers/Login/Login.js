@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { login } from '../../actions/auth';
-const Login = ({ login, history }) => {
+
+
+const Login = ({ login, history,isAuthenticated }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -11,6 +13,9 @@ const Login = ({ login, history }) => {
   const onChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  if(isAuthenticated){
+    return <Redirect to='/dashboard' />
+  }
   return (
     <div>
       <section className='container'>
@@ -57,7 +62,10 @@ const Login = ({ login, history }) => {
   );
 };
 
+const mapStateToProps = (state )=> ({
+  isAuthenticated: state.auth.isAuthenticated
+});
 export default connect(
-  null,
+  mapStateToProps,
   { login }
 )(Login);
