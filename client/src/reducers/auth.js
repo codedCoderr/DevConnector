@@ -3,9 +3,10 @@ import {
   REGISTER_SUCCESS,
   LOGIN_FAIL,
   LOGIN_SUCCESS,
-  CLEAR_PROFILE,
+  AUTH_FAIL,
   LOAD_USER,
-  LOGOUT
+  LOGOUT,
+  CLEAR_PROFILE
 } from '../actions/types';
 
 const initialState = {
@@ -28,8 +29,9 @@ export default function(state = initialState, action) {
       };
     case REGISTER_FAIL:
     case LOGIN_FAIL:
-    case CLEAR_PROFILE:
+    case AUTH_FAIL:
     case LOGOUT:
+    case CLEAR_PROFILE:
       localStorage.removeItem('token');
       return {
         ...state,
@@ -42,7 +44,8 @@ export default function(state = initialState, action) {
       return {
         ...state,
         isAuthenticated: true,
-        user: payload
+        user: payload,
+        loading:false
       };
     default:
       return state;

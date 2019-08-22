@@ -10,9 +10,8 @@ import {
   ADD_EXPERIENCE_SUCCESS,
   ADD_EXPERIENCE_FAIL,
   ADD_EDUCATION_SUCCESS,
-  ADD_EDUCATION_FAIL,DELETE_EXPERIENCE,
-  DELETE_EDUCATION,
-  DELETE_PROFILE
+  ADD_EDUCATION_FAIL,
+  CLEAR_PROFILE
 } from '../actions/types';
 
 const initialState = {
@@ -81,21 +80,13 @@ export default function(state = initialState, action) {
         ...state,
         loading: false
       };
-    // case DELETE_EXPERIENCE:
-    //   return {
-    //     ...state,
-    //     loading: false
-    //   };
-    // case DELETE_EDUCATION:
-    //   return {
-    //     ...state,
-    //     loading: false
-    //   };
-    // case DELETE_PROFILE:
-    //   return {
-    //     ...state,
-    //     loading: false
-    //   };
+    case CLEAR_PROFILE:
+      return {
+        ...state,
+        profile: null,
+        loading: false
+      };
+
     default:
       return state;
   }

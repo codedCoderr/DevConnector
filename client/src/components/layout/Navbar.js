@@ -1,22 +1,16 @@
 import React, { Fragment } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '../../actions/auth';
+
 const Navbar = ({ logout, isAuthenticated }) => {
   return (
     <nav className='navbar bg-dark'>
       <h1>
-        {isAuthenticated ? (
-          <Link to='/dashboard'>
-            <i className='fas fa-code' /> DevConnector
-          </Link>
-        ) : (
-          <Link to='/'>
-            <i className='fas fa-code' /> DevConnector
-          </Link>
-        )}
+        <Link to='/'>
+          <i className='fas fa-code' /> DevConnector
+        </Link>
       </h1>
-
       <ul>
         <li>
           <Link to='/profiles'>Developers</Link>
@@ -27,7 +21,7 @@ const Navbar = ({ logout, isAuthenticated }) => {
               <Link to='/dashboard'>Dashboard</Link>
             </li>
             <li onClick={() => logout()}>
-              <Link to='/login'>Logout</Link>
+              <Link to='/login'> <span className="hide-sm">Logout</span> {' '}<i className="fas fa-sign-out-alt"> </i></Link>
             </li>
           </Fragment>
         ) : (

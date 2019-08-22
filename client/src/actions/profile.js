@@ -11,7 +11,7 @@ import {
   ADD_EDUCATION_FAIL,
   FETCH_CURRENT_PROFILE_SUCCESS,
   FETCH_CURRENT_PROFILE_FAIL,
-  DELETE_PROFILE,
+  DELETE_ACCOUNT,CLEAR_PROFILE,
   EDIT_PROFILE_SUCCESS
 } from './types';
 import { setAlert } from './alert';
@@ -110,7 +110,23 @@ export const createProfile = (
     });
   }
 };
-
+export const deleteAccount=(history)=>async dispatch=>{
+  if (window.confirm("Are you sure? This CANNOT be undone!")) {
+  try {
+    const response=await axios.delete('/profile')
+    dispatch({
+      type: DELETE_ACCOUNT
+    });
+    dispatch({
+      type: CLEAR_PROFILE
+    });
+    dispatch(setAlert('User successfully deleted', 'success'));
+    history.push('/login')
+  } catch (error) {dispatch(setAlert(error.message, 'danger'))
+    
+  }
+  }
+}
 export const fetchProfile = user_id => async dispatch => {
   try {
     const response = await axios.get(`/profile/${user_id}`);
