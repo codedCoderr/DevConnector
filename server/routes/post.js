@@ -5,7 +5,7 @@ const User = require('../models/User');
 const Profile = require('../models/Profile');
 const auth = require('../middleware');
 const _ = require('lodash');
-const { check, validationResult } = require('express-validator');
+// const { check, validationResult } = require('express-validator');
 
 router.get('/posts', auth, async (req, res) => {
   try {
@@ -13,31 +13,21 @@ router.get('/posts', auth, async (req, res) => {
       .sort({ date: -1 })
       .populate('user', ['name']);
     if (posts.length <= 0) {
-      return res.status(400).json({ errors: [{ msg: 'No posts found' }] });
+      return res.status(400).send('No posts found');
     }
-    res.json(posts);
+    res.status(200).send(posts);
   } catch (error) {
-    res.status(500).json({ errors: [{ msg: 'Error finding posts' }] });
+    res.status(500).send('Error finding posts');
   }
 });
 router.post(
-  '/posts',
-  [
-    auth,
-    [
-      check('text', 'Text is required')
-        .not()
-        .isEmpty()
-    ]
-  ],
+  '/posts',auth,
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
     try {
       const { id } = req.user;
       const { text } = req.body;
+      if(!text) return res.status(400).send('Text is required');
+
       let profile = await Profile.findOne({ user: id });
       if (!profile) {
         profile = {};
@@ -50,9 +40,9 @@ router.post(
         avatar: profile.avatar
       });
       await post.save();
-      res.json(post);
+      res.status(200).send(post);
     } catch (error) {
-      res.status(500).json({ errors: [{ msg: 'Error creating post' }] });
+      res.status(500).send('Error creating post');
     }
   }
 );
@@ -61,37 +51,37 @@ router.get('/posts/:post_id', auth, async (req, res) => {
     const { post_id } = req.params;
     let post = await Post.findOne({ _id: post_id }).populate('user', ['name']);
     if (!post) {
-      return res.status(400).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(400).send('No post found');
     }
-    res.json(post);
+    res.status(200).send(post);
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(400).send('No post found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error finding post' }] });
+    res.status(500).send('Error finding post');
   }
 });
 router.put('/posts/:post_id', auth, async (req, res) => {
   const { id } = req.user;
   const { text } = req.body;
   const { post_id } = req.params;
-
   try {
+    if(!text)return res.status(400).send('Text is required');
     let post = await Post.findOne({
       _id: post_id,
       user: id
     }).populate('user', ['name']);
     if (!post) {
-      return res.status(400).json({ errors: [{ msg: 'Unauthorized user' }] });
+      return res.status(400).send('Unauthorized user');
     }
     _.update(post, (post.text = text));
     await post.save();
-    res.json(post);
+    res.status(200).send(post);
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(400).send('No post found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error modifying post' }] });
+    res.status(500).send('Error modifying post');
   }
 });
 router.delete('/posts/:post_id', auth, async (req, res) => {
@@ -103,14 +93,14 @@ router.delete('/posts/:post_id', auth, async (req, res) => {
       user: id
     });
     if (!post) {
-      return res.status(400).json({ errors: [{ msg: 'Unauthorized user' }] });
+      return res.status(400).send('Unauthorized user');
     }
-    res.json({ errors: [{ msg: 'Post removed' }] });
+    res.status(200).send('Post removed');
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(400).send('No post found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error deleting post' }] });
+    res.status(500).send('Error deleting post');
   }
 });
 router.post('/posts/:post_id/like', auth, async (req, res) => {
@@ -121,20 +111,18 @@ router.post('/posts/:post_id/like', auth, async (req, res) => {
       _id: post_id
     });
     if (post.likes.filter(like => like.user.toString() === id).length > 0) {
-      return res
-        .status(400)
-        .json({ errors: [{ msg: "You've already liked this post" }] });
+      return res.status(400).send("You've already liked this post");
     }
 
     post.likes.unshift({ user: id });
 
     await post.save();
-    res.json(post.likes);
+    res.status(200).send(post.likes);
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(400).send('No post found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error liking post' }] });
+    res.status(500).send('Error liking post');
   }
 });
 router.post('/posts/:post_id/unlike', auth, async (req, res) => {
@@ -145,9 +133,7 @@ router.post('/posts/:post_id/unlike', auth, async (req, res) => {
       _id: post_id
     });
     if (post.likes.filter(like => like.user.toString() === id).length <= 0) {
-      return res
-        .status(400)
-        .json({ errors: [{ msg: "You haven't liked this post" }] });
+      return res.status(400).send("You haven't liked this post");
     }
 
     const removeIndex = post.likes
@@ -157,12 +143,12 @@ router.post('/posts/:post_id/unlike', auth, async (req, res) => {
     post.likes.splice(removeIndex, 1);
 
     await post.save();
-    res.json(post.likes);
+    res.status(200).send(post.likes);
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(400).send('No post found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error unliking post' }] });
+    res.status(500).send('Error unliking post');
   }
 });
 router.post('/posts/:post_id/comment', auth, async (req, res) => {
@@ -192,12 +178,12 @@ router.post('/posts/:post_id/comment', auth, async (req, res) => {
     post.comments.unshift(newComment);
 
     await post.save();
-    res.json(post.comments);
+    res.status(200).send(post.comments);
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(400).send('No post found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error commenting on post' }] });
+    res.status(500).send('Error commenting on post');
   }
 });
 router.delete('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
@@ -208,15 +194,15 @@ router.delete('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
       _id: post_id
     });
     if (!post) {
-      return res.status(404).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(404).send('No post found');
     }
     const comment = post.comments.find(comment => comment.id === comment_id);
     if (!comment) {
-      return res.status(404).json({ errors: [{ msg: 'No comment found' }] });
+      return res.status(404).send('No comment found');
     }
 
     if (comment.user.toString() !== id) {
-      return res.status(401).json({ errors: [{ msg: 'User not authorized' }] });
+      return res.status(401).send('User not authorized');
     }
 
     const removeIndex = post.comments
@@ -225,12 +211,12 @@ router.delete('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
     post.comments.splice(removeIndex, 1);
 
     await post.save();
-    res.json(post.comments);
+    res.status(200).send(post.comments);
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No comment found' }] });
+      return res.status(400).send('No comment found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error removing comment' }] });
+    res.status(500).send('Error removing comment');
   }
 });
 router.put('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
@@ -242,24 +228,24 @@ router.put('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
       _id: post_id
     });
     if (!post) {
-      return res.status(404).json({ errors: [{ msg: 'No post found' }] });
+      return res.status(404).send('No post found');
     }
     const comment = post.comments.find(comment => comment.id === comment_id);
     if (!comment) {
-      return res.status(404).json({ errors: [{ msg: 'No comment found' }] });
+      return res.status(404).send('No comment found');
     }
 
     if (comment.user.toString() !== id) {
-      return res.status(401).json({ errors: [{ msg: 'User not authorized' }] });
+      return res.status(401).send('User not authorized');
     }
     _.update(comment, (comment.text = text));
     await post.save();
-    res.json(comment);
+    res.status(200).send(comment);
   } catch (error) {
     if (error.kind === 'ObjectId') {
-      return res.status(400).json({ errors: [{ msg: 'No comment found' }] });
+      return res.status(400).send('No comment found');
     }
-    res.status(500).json({ errors: [{ msg: 'Error modifying comment' }] });
+    res.status(500).send('Error modifying comment');
   }
 });
 module.exports = router;

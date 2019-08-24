@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server --ignore client",
-    "client":"npm start --prefix ../client",
-    "dev":"concurrently \"npm run server\" \"npm run client\""
+    "client": "npm start --prefix ../client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "test": "cross-env NODE_ENV=test mocha --timeout 10000 test/index.js --exit"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,10 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
-    "concurrently": "^4.1.1"
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "concurrently": "^4.1.1",
+    "cross-env": "^5.2.0",
+    "mocha": "^6.2.0"
   }
 }

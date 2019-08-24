@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { check, validationResult } = require('express-validator');
+// const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -10,38 +10,25 @@ const { jwtsecret } = process.env;
 
 router.post(
   '/register',
-  [
-    check('name', 'Name is required')
-      .not()
-      .isEmpty(),
-    check('email', 'Please include a valid email').isEmail(),
-    check(
-      'password',
-      'Please enter a password with 3 or more characters'
-    ).isLength({ min: 3 }),
-    check(
-      'password2',
-      'Confirm your password'
-    ).isLength({ min: 3 })
-  ],
+
   async (req, res) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const { name, email, password, password2 } = req.body;
+      if (!name) return res.status(400).send('Name is required');
+      if (!email) return res.status(400).send('Email is required');
+      if (!password)
+        return res
+          .status(400)
+          .send('Enter a password of three or more characters');
 
       let user = await User.findOne({ email });
       if (user) {
         return res
           .status(400)
-          .json({ errors: [{ msg: 'Error registering,enter a different email' }] });
+          .send('Error registering,enter a different email');
       }
       if (password !== password2) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Passwords do not match' }] });
+        return res.status(400).send('Passwords do not match');
       }
       user = new User({
         name,
@@ -60,38 +47,28 @@ router.post(
       const token = await jwt.sign(payload, jwtsecret, {
         expiresIn: 360000
       });
-      res.json(token);
+      res.json({token});
     } catch (error) {
-      res.status(500).send({ errors: [{ msg: 'Error registering user' }] });
+      res.status(500).send('Error registering user');
     }
   }
 );
 
 router.post(
   '/login',
-  [
-    check('email', 'Please enter a valid email').isEmail(),
-    check('password', 'Password is required').exists()
-  ],
+
   async (req, res) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
       const { email, password } = req.body;
-
+      if (!email) return res.status(400).send('Email is required');
+      if (!password) return res.status(400).send('Password is required');
       const user = await User.findOne({ email });
       if (!user) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] });
+        return res.status(400).send('Invalid credentials');
       }
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: 'Invalid credentials' }] });
+        return res.status(400).send('Invalid credentials');
       }
       const payload = {
         user: {
@@ -100,9 +77,9 @@ router.post(
         }
       };
       const token = await jwt.sign(payload, jwtsecret, { expiresIn: 360000 });
-      res.json(token);
+      res.send(token);
     } catch (error) {
-      res.status(500).json({ errors: [{ msg: 'Error logging in' }] });
+      res.status(500).send('Error logging in');
     }
   }
 );
@@ -111,11 +88,11 @@ router.get('/user', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
-      return res.status(400).json({ errors: [{ msg: 'No signed in user' }] });
+      return res.status(400).send('No signed in user');
     }
-    res.json(user);
+    res.status(200).send(user);
   } catch (error) {
-    res.status(500).json({ errors: [{ msg: 'Error getting user' }] });
+    res.status(500).send('Error getting user');
   }
 });
 module.exports = router;
