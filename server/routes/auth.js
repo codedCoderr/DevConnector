@@ -47,7 +47,7 @@ router.post(
       const token = await jwt.sign(payload, jwtsecret, {
         expiresIn: 360000
       });
-      res.json({token});
+      res.status(200).send(token);
     } catch (error) {
       res.status(500).send('Error registering user');
     }
@@ -77,7 +77,7 @@ router.post(
         }
       };
       const token = await jwt.sign(payload, jwtsecret, { expiresIn: 360000 });
-      res.send(token);
+      res.status(200).send(token);
     } catch (error) {
       res.status(500).send('Error logging in');
     }

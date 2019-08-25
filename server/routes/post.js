@@ -194,11 +194,11 @@ router.delete('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
       _id: post_id
     });
     if (!post) {
-      return res.status(404).send('No post found');
+      return res.status(400).send('No post found');
     }
     const comment = post.comments.find(comment => comment.id === comment_id);
     if (!comment) {
-      return res.status(404).send('No comment found');
+      return res.status(400).send('No comment found');
     }
 
     if (comment.user.toString() !== id) {
@@ -228,11 +228,11 @@ router.put('/posts/:post_id/comment/:comment_id', auth, async (req, res) => {
       _id: post_id
     });
     if (!post) {
-      return res.status(404).send('No post found');
+      return res.status(400).send('No post found');
     }
     const comment = post.comments.find(comment => comment.id === comment_id);
     if (!comment) {
-      return res.status(404).send('No comment found');
+      return res.status(400).send('No comment found');
     }
 
     if (comment.user.toString() !== id) {

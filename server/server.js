@@ -17,6 +17,14 @@ app.route('/login');
 app.route('/user');
 app.route('/posts')
 app.route('/posts/:id')
+app.route('/posts/:id/like')
+app.route('/posts/:id/unlike')
+app.route('/posts/:id/comment')
+app.route('/posts/:post_id/comment/:comment_id')
+app.route('/profile/me')
+// app.route('/profile/me')
+
+
 app.use(require('./routes/auth'));
 app.use(require('./routes/post'));
 app.use(require('./routes/profile'));
