@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 app.use(cors());
 require('dotenv').config();
+const swaggerJSDoc=require('swagger-jsdoc');
+const swaggerUi=require('swagger-ui-express');
 
 app.use(express.json({ extended: false }));
 const { testdb, clouddb, NODE_ENV } = process.env;
@@ -12,19 +14,49 @@ mongoose.connect(NODE_ENV === 'test' ? testdb : clouddb, {
   useNewUrlParser: true
 });
 
+const swaggerDefinition={
+  info:{
+    title:'REST API for DEV CONNECTOR APP',
+    versin:'1.0.0',
+    description:'Rest API'
+  },
+  host:'localhost:3000',
+  basePath:'/'
+  // ,
+  // securityDefinitions:{
+  //   bearerAuth:{
+  //     type:'apiKey',
+  //     name:'x-auth-token',
+  //     scheme:'bearer',
+  //     in:'header',
+  //   }
+  // }
+}
+
+const options={
+  swaggerDefinition,
+  apis:['./docs/*/.yaml'],
+};
+
+const swaggerSpec=swaggerJSDoc(options);
+
+app.use('/',swaggerUi.serve,swaggerUi.setup(swaggerSpec));
+
+
 app.route('/register');
 app.route('/login');
 app.route('/user');
-app.route('/posts')
-app.route('/posts/:id')
-app.route('/posts/:id/like')
-app.route('/posts/:id/unlike')
-app.route('/posts/:id/comment')
-app.route('/posts/:post_id/comment/:comment_id')
-app.route('/profile/me')
-// app.route('/profile/me')
+app.route('/posts');
+app.route('/posts/:id');
+app.route('/posts/:id/like');
+app.route('/posts/:id/unlike');
+app.route('/posts/:id/comment');
+app.route('/posts/:post_id/comment/:comment_id');
+app.route('/profile/me');
 
-
+app.get('/',(req,res)=>{
+  res.status(200).send('Welcome to Dev Connect')
+})
 app.use(require('./routes/auth'));
 app.use(require('./routes/post'));
 app.use(require('./routes/profile'));
