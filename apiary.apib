@@ -10,21 +10,18 @@ Dev Connect is a simple API allowing users to connect with fellow developers
 ### Register a new user [POST]
 
 + Response 200 (application/json)
++ Response 400 (application/json)
 
-        
-            {
-                "name": "Olowu",
-                "email": "bee@gmail.com",
-                "password": "bee"
-            }
 ## Log in a registered user [/login]
 
 ### Log in a registered user [POST]
 
 + Response 200 (application/json)
++ Response 400 (application/json)
 
-        
-            {
-                "email": "bee@gmail.com",
-                "password": "bee"
-            }
+## View logged in user [/user]
+
+### View logged in user [GET]
+
++ Response 200 (application/json)
++ Response 400 (application/json)
