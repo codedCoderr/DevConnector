@@ -1,0 +1,150 @@
+schemes:
+  - http
+  - https
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: x-auth-token
+    in: header
+paths:
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: creates a new user
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          description: user name
+          required: true
+          type: string
+          in: body
+        - name: email
+          description: user email
+          required: true
+          type: string
+          in: body
+        - name: password
+          description: user password
+          required: true
+          type: string
+          in: body
+        - name: password2
+          description: confirmation of user password
+          required: true
+          type: string
+          in: body
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            $ref: '#/definitions/user'
+        400:
+          description: user already exists
+        500:
+          description: error
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: logs in a registered user
+      produces:
+        - application/json
+      parameters:
+        - name: email
+          description: user email
+          required: true
+          type: string
+          in: body
+        - name: password
+          description: user password
+          required: true
+          type: string
+          in: body
+      responses:
+        200:
+          description: success
+          schema:
+            type: object
+            $ref: '#/definitions/user'
+        400:
+          description: invalid credentials
+        500:
+          description: error
+  /user:
+    get:
+      tags:
+        - Auth
+      security:
+        - Bearer: []
+      summary: Get logged in user
+      produces: application/json
+      responses:
+        200:
+          description: success
+          schema: $ref:'#/definitions/user'
+        400:
+          description: invalid credentials
+        500:
+          description: error
+
+definitions: # Schema definitions
+  user:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      date:
+        type: string
+  post:
+    type: object
+    properties:
+      user:
+        type: string
+      text:
+        type: string
+      name:
+        type: string
+      avatar:
+        type: string
+      likes:
+        type: array
+      comment:
+        type: array
+      date:
+        type: string
+  profile:
+    type: object
+    properties:
+      user:
+        type: string
+      avatar:
+        type: string
+      company:
+        type: string
+      website:
+        type: string
+      location:
+        type: string
+      status:
+        type: string
+      skills:
+        type: string
+      bio:
+        type: string
+      githubusername:
+        type: string
+      experience:
+        type: array
+      education:
+        type: array
+      social:
+        type: object
+      date:
+        type: string
